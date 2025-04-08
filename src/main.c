@@ -76,6 +76,11 @@ int main(void)
 		list_add_tail(&hGS_CAN.msgbuf[i].list, &hGS_CAN.list_frame_pool);
 	}
 
+	USBD_Init(&hUSB, (USBD_DescriptorsTypeDef*)&FS_Desc, DEVICE_FS);
+	USBD_RegisterClass(&hUSB, &USBD_GS_CAN);
+	USBD_GS_CAN_Init(&hGS_CAN, &hUSB);
+	USBD_Start(&hUSB);
+
 	for (unsigned int i = 0; i < ARRAY_SIZE(hGS_CAN.channels); i++) {
 		const struct BoardChannelConfig *channel_config = &config.channels[i];
 		const struct LEDConfig *led_config = channel_config->leds;
@@ -103,11 +108,6 @@ int main(void)
 		can_init(channel, config.channels[i].interface);
 		can_disable(channel);
 	}
-
-	USBD_Init(&hUSB, (USBD_DescriptorsTypeDef*)&FS_Desc, DEVICE_FS);
-	USBD_RegisterClass(&hUSB, &USBD_GS_CAN);
-	USBD_GS_CAN_Init(&hGS_CAN, &hUSB);
-	USBD_Start(&hUSB);
 
 	while (1) {
 		for (unsigned int i = 0; i < ARRAY_SIZE(hGS_CAN.channels); i++) {
