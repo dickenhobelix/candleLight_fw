@@ -146,7 +146,7 @@ void legacy_setup(USBD_GS_CAN_HandleTypeDef *hcan) {
 	HAL_GPIO_Init(nSI86EN_Port, &GPIO_InitStruct);  //enable si86
 #endif
 
-#if defined(BOARD_STM32F4_DevBoard)
+#if defined(BOARD_STM32F4_DevBoard) || defined(BOARD_STM32F4_DevBoardDualChannel)
 	// initialize USB pins
 	GPIO_InitStruct.Pin = USB_Pin_DM | USB_Pin_DP;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -200,4 +200,21 @@ const struct BoardConfig config = {
 			},
 		},
 	},
+#if NUM_CAN_CHANNEL == 2
+	.channels[1] = {
+		.interface = CAN_INTERFACE2,
+		.leds = {
+			[LED_RX] = {
+				.port = LEDRX_GPIO_Port,
+				.pin = LEDRX_Pin,
+				.active_high = LEDRX_Active_High,
+			},
+			[LED_TX] = {
+				.port = LEDTX_GPIO_Port,
+				.pin = LEDTX_Pin,
+				.active_high = LEDTX_Active_High,
+			},
+		},
+	},
+#endif
 };
