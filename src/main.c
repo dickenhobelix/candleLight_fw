@@ -89,11 +89,13 @@ int main(void)
 				 led_config[LED_RX].port, led_config[LED_RX].pin, led_config[LED_RX].active_high,
 				 led_config[LED_TX].port, led_config[LED_TX].pin, led_config[LED_TX].active_high);
 
-		/* nice wake-up pattern */
-		for (uint8_t j = 0; j < 10; j++) {
-			HAL_GPIO_TogglePin(led_config[LED_RX].port, led_config[LED_RX].pin);
-			HAL_Delay(50);
-			HAL_GPIO_TogglePin(led_config[LED_TX].port, led_config[LED_TX].pin);
+		/* only blink nice wake-up pattern once in order not to violate USB enumeration timing */
+		if (i == 0) {
+			for (uint8_t j = 0; j < 10; j++) {
+				HAL_GPIO_TogglePin(led_config[LED_RX].port, led_config[LED_RX].pin);
+				HAL_Delay(50);
+				HAL_GPIO_TogglePin(led_config[LED_TX].port, led_config[LED_TX].pin);
+			}
 		}
 
 		led_set_mode(&channel->leds, LED_MODE_OFF);
