@@ -89,14 +89,8 @@ int main(void)
 				 led_config[LED_RX].port, led_config[LED_RX].pin, led_config[LED_RX].active_high,
 				 led_config[LED_TX].port, led_config[LED_TX].pin, led_config[LED_TX].active_high);
 
-		/* nice wake-up pattern */
-		for (uint8_t j = 0; j < 10; j++) {
-			HAL_GPIO_TogglePin(led_config[LED_RX].port, led_config[LED_RX].pin);
-			HAL_Delay(50);
-			HAL_GPIO_TogglePin(led_config[LED_TX].port, led_config[LED_TX].pin);
-		}
 
-		led_set_mode(&channel->leds, LED_MODE_OFF);
+				 led_set_mode(&channel->leds, LED_MODE_OFF);
 
 		can_init(channel, config.channels[i].interface);
 		can_disable(channel);
@@ -106,6 +100,21 @@ int main(void)
 	USBD_RegisterClass(&hUSB, &USBD_GS_CAN);
 	USBD_GS_CAN_Init(&hGS_CAN, &hUSB);
 	USBD_Start(&hUSB);
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(hGS_CAN.channels); i++) {
+		can_data_t *channel = &hGS_CAN.channels[i];
+		const struct BoardChannelConfig *channel_config = &config.channels[i];
+		const struct LEDConfig *led_config = channel_config->leds;
+
+		/* nice wake-up pattern */
+		for (uint8_t j = 0; j < 10; j++) {
+			HAL_GPIO_TogglePin(led_config[LED_RX].port, led_config[LED_RX].pin);
+			HAL_Delay(50);
+			HAL_GPIO_TogglePin(led_config[LED_TX].port, led_config[LED_TX].pin);
+		}
+
+		led_set_mode(&channel->leds, LED_MODE_OFF);
+	}
 
 	while (1) {
 		for (unsigned int i = 0; i < ARRAY_SIZE(hGS_CAN.channels); i++) {
